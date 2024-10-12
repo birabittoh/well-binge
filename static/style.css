@@ -1,0 +1,13 @@
+label {
+    display: grid;
+    grid-template-columns: auto auto;
+    align-items: center;
+    justify-items: start;
+    align-content: center;
+    justify-content: space-between;
+    max-width: 350px;
+}
+
+label > input {
+    max-width: 250px;
+}
