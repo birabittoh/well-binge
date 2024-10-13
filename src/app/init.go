@@ -34,7 +34,7 @@ type Habit struct {
 	UserID   uint
 	Name     string
 	Days     uint
-	LastAck  time.Time
+	LastAck  *time.Time
 	Negative bool
 	Disabled bool
 
@@ -115,9 +115,12 @@ func Main() {
 		log.Fatal(err)
 	}
 
-	// Handle routes
+	// App
 	http.HandleFunc("GET /", getIndexHandler)
 	http.HandleFunc("GET /habits", loginRequired(getHabitsHandler))
+	http.HandleFunc("GET /new/positive", loginRequired(getNewPositiveHandler))
+	http.HandleFunc("GET /new/negative", loginRequired(getNewNegativeHandler))
+	http.HandleFunc("POST /new", loginRequired(postNewHandler))
 
 	// Auth
 	http.HandleFunc("GET /register", getRegisterHandler)

@@ -2,6 +2,7 @@ package app
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -31,6 +32,49 @@ func getHabitsHandler(w http.ResponseWriter, r *http.Request) {
 	xt.ExecuteTemplate(w, "habits.tmpl", data)
 }
 
+func getNewPositiveHandler(w http.ResponseWriter, r *http.Request) {
+	data := map[string]interface{}{"Negative": false}
+	xt.ExecuteTemplate(w, "new.tmpl", data)
+}
+
+func getNewNegativeHandler(w http.ResponseWriter, r *http.Request) {
+	data := map[string]interface{}{"Negative": true}
+	xt.ExecuteTemplate(w, "new.tmpl", data)
+}
+
+func postNewHandler(w http.ResponseWriter, r *http.Request) {
+	negative := r.FormValue("negative") == "on"
+	name := r.FormValue("name")
+
+	if !checkHabitName(name) {
+		http.Error(w, "Bad habit name.", http.StatusBadRequest)
+	}
+
+	var days uint
+	if !negative {
+		res, err := strconv.ParseUint(r.FormValue("days"), 10, 64)
+		if err != nil {
+			http.Error(w, "Bad days value.", http.StatusBadRequest)
+			return
+		}
+		days = uint(res)
+	}
+
+	user, ok := getLoggedUser(r)
+	if !ok {
+		http.Error(w, "Could not get logged user", http.StatusInternalServerError)
+	}
+
+	db.Create(&Habit{
+		UserID:   user.ID,
+		Name:     name,
+		Days:     days,
+		Negative: negative,
+	})
+
+	http.Redirect(w, r, "/habits", http.StatusFound)
+}
+
 func getRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	xt.ExecuteTemplate(w, "auth-register.tmpl", nil)
 }
@@ -41,6 +85,7 @@ func getLoginHandler(w http.ResponseWriter, r *http.Request) {
 		xt.ExecuteTemplate(w, "auth-login.tmpl", nil)
 		return
 	}
+
 	http.Redirect(w, r, "/habits", http.StatusFound)
 }
 

@@ -31,8 +31,9 @@ const (
 )
 
 var (
-	validUsername = regexp.MustCompile(`(?i)^[a-z0-9._-]+$`)
-	validEmail    = regexp.MustCompile(`^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$`)
+	validUsername  = regexp.MustCompile(`(?i)^[a-z0-9._-]+$`)
+	validEmail     = regexp.MustCompile(`^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$`)
+	validHabitName = regexp.MustCompile(`(?i)^[a-z0-9._,\s)(-]+$`)
 )
 
 func getUserByName(username string, excluding uint) (user User, err error) {
@@ -56,6 +57,10 @@ func sanitizeEmail(email string) (string, error) {
 	}
 
 	return email, nil
+}
+
+func checkHabitName(name string) bool {
+	return len(name) < 50 && validHabitName.MatchString(name)
 }
 
 func login(w http.ResponseWriter, userID uint, remember bool) {
@@ -146,9 +151,15 @@ func formatDuration(d time.Duration) string {
 }
 
 func toHabitDisplay(habit Habit) HabitDisplay {
+	var lastAck string
+	if habit.LastAck == nil {
+		lastAck = "-"
+	} else {
+		lastAck = formatDuration(time.Since(*habit.LastAck))
+	}
 	return HabitDisplay{
 		Name:     habit.Name,
-		LastAck:  formatDuration(time.Since(habit.LastAck)),
+		LastAck:  lastAck,
 		Disabled: habit.Disabled,
 		Class:    classGood,
 	}

@@ -1,0 +1,31 @@
+{{ extends "base.tmpl" }}
+
+{{define "title" -}}New habit{{end}}
+
+{{define "content" -}}
+	<h1>New habit</h1>
+    <h4>
+    {{ if .Negative }}
+        Which negative habit are you trying to stop?
+    {{ else }}
+        Which positive habit are you trying to get?<br />
+        How often would you like to do it?
+    {{ end }}
+    </h4>
+
+    <form method="post" action="/new">
+        <label>
+            <span>Name:</span>
+            <input type="text" name="name" autocomplete="off" placeholder="Name" required />
+        </label>
+        {{ if .Negative }}
+            <input type="hidden" name="negative" value="on" />
+        {{ else }}
+            <label>
+                <span>Days:</span>
+                <input type="number" name="days" autocomplete="off" placeholder="Days" min="1" max="60" required />
+            </label>
+        {{ end }}
+        <input type="submit" value="Create" />
+    </form>
+{{end}}

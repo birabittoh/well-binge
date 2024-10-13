@@ -5,7 +5,10 @@
 {{define "content" -}}
 	<h1>Welcome, <i>{{.User.Username}}</i>!</h1> 
     <a href="/logout">Logout</a><br />
-    <h4>Positive habits</h4>
+    <div class="habits-title">
+        <h4>Positive habits</h4>
+        <a href="/new/positive" class="button">+ Add</a>
+    </div>
     <table>
         <thead>
             <tr>
@@ -26,7 +29,10 @@
         <tfoot></tfoot>
     </table>
 
-    <h4>Negative habits</h4>
+    <div class="habits-title">
+        <h4>Negative habits</h4>
+        <a href="/new/negative" class="button">+ Add</a>
+    </div>
     <table>
         <thead>
             <tr>

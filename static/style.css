@@ -11,3 +11,10 @@ label {
 label > input {
     max-width: 250px;
 }
+
+.habits-title {
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+    align-items: center
+}
