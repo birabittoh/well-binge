@@ -9,14 +9,26 @@ func getIndexHandler(w http.ResponseWriter, r *http.Request) {
 	xt.ExecuteTemplate(w, "index.tmpl", nil)
 }
 
-func getProfileHandler(w http.ResponseWriter, r *http.Request) {
+func getHabitsHandler(w http.ResponseWriter, r *http.Request) {
 	user, ok := getLoggedUser(r)
 	if !ok {
 		http.Error(w, "Could not find user in context.", http.StatusInternalServerError)
 		return
 	}
 
-	xt.ExecuteTemplate(w, "profile.tmpl", map[string]interface{}{"User": user})
+	positive, negative, err := getAllHabits(user.ID)
+	if err != nil {
+		http.Error(w, "Could not get user habits.", http.StatusInternalServerError)
+		return
+	}
+
+	data := map[string]interface{}{
+		"User":     user,
+		"Positive": positive,
+		"Negative": negative,
+	}
+
+	xt.ExecuteTemplate(w, "habits.tmpl", data)
 }
 
 func getRegisterHandler(w http.ResponseWriter, r *http.Request) {
@@ -29,7 +41,7 @@ func getLoginHandler(w http.ResponseWriter, r *http.Request) {
 		xt.ExecuteTemplate(w, "auth-login.tmpl", nil)
 		return
 	}
-	http.Redirect(w, r, "/profile", http.StatusFound)
+	http.Redirect(w, r, "/habits", http.StatusFound)
 }
 
 func getResetPasswordHandler(w http.ResponseWriter, r *http.Request) {

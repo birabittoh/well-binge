@@ -25,6 +25,28 @@ type User struct {
 	Email        string `gorm:"unique"`
 	PasswordHash string
 	Salt         string
+
+	Habits []Habit
+}
+
+type Habit struct {
+	gorm.Model
+	UserID   uint
+	Name     string
+	Days     uint
+	LastAck  time.Time
+	Negative bool
+	Disabled bool
+
+	User User
+	Acks []Ack
+}
+
+type Ack struct {
+	gorm.Model
+	HabitID uint
+
+	Habit Habit
 }
 
 const (
@@ -84,7 +106,7 @@ func Main() {
 		log.Fatal(err)
 	}
 
-	db.AutoMigrate(&User{})
+	db.AutoMigrate(&User{}, &Habit{}, &Ack{})
 
 	// Init template engine
 	xt = extemplate.New()
@@ -95,18 +117,20 @@ func Main() {
 
 	// Handle routes
 	http.HandleFunc("GET /", getIndexHandler)
-	http.HandleFunc("GET /profile", loginRequired(getProfileHandler))
+	http.HandleFunc("GET /habits", loginRequired(getHabitsHandler))
+
+	// Auth
 	http.HandleFunc("GET /register", getRegisterHandler)
 	http.HandleFunc("GET /login", getLoginHandler)
 	http.HandleFunc("GET /reset-password", getResetPasswordHandler)
 	http.HandleFunc("GET /reset-password-confirm", getResetPasswordConfirmHandler)
 	http.HandleFunc("GET /logout", logoutHandler)
-
 	http.HandleFunc("POST /login", postLoginHandler)
 	http.HandleFunc("POST /register", postRegisterHandler)
 	http.HandleFunc("POST /reset-password", postResetPasswordHandler)
 	http.HandleFunc("POST /reset-password-confirm", postResetPasswordConfirmHandler)
 
+	// Static
 	http.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
 	// Start serving

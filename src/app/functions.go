@@ -14,9 +14,20 @@ import (
 	"github.com/birabittoh/auth-boilerplate/src/email"
 )
 
+type HabitDisplay struct {
+	Class    string
+	Name     string
+	LastAck  string
+	Disabled bool
+}
+
 const (
 	minUsernameLength = 3
 	maxUsernameLength = 10
+
+	classGood = "good"
+	classWarn = "warn"
+	classBad  = "bad"
 )
 
 var (
@@ -127,4 +138,36 @@ func getLoggedUser(r *http.Request) (user User, ok bool) {
 	userID, ok := r.Context().Value(userContextKey).(uint)
 	db.Find(&user, userID)
 	return user, ok
+}
+
+func formatDuration(d time.Duration) string {
+	// TODO: 48h1m13s --> 2.01 days
+	return d.String()
+}
+
+func toHabitDisplay(habit Habit) HabitDisplay {
+	return HabitDisplay{
+		Name:     habit.Name,
+		LastAck:  formatDuration(time.Since(habit.LastAck)),
+		Disabled: habit.Disabled,
+		Class:    classGood,
+	}
+}
+
+func getAllHabits(userID uint) (positives []HabitDisplay, negatives []HabitDisplay, err error) {
+	var habits []Habit
+	err = db.Model(&Habit{}).Where(&Habit{UserID: userID}).Find(&habits).Error
+	if err != nil {
+		return
+	}
+
+	for _, habit := range habits {
+		habitDisplay := toHabitDisplay(habit)
+		if habit.Negative {
+			negatives = append(negatives, habitDisplay)
+		} else {
+			positives = append(positives, habitDisplay)
+		}
+	}
+	return
 }

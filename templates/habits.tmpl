@@ -1,0 +1,47 @@
+{{ extends "base.tmpl" }}
+
+{{define "title" -}}Habits{{end}}
+
+{{define "content" -}}
+	<h1>Welcome, <i>{{.User.Username}}</i>!</h1> 
+    <a href="/logout">Logout</a><br />
+    <h4>Positive habits</h4>
+    <table>
+        <thead>
+            <tr>
+                <td>Name</td>
+                <td>Last time</td>
+                <td>Enabled</td>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Positive}}
+            <tr class="{{.Class}}">
+                <td>{{.Name}}</td>
+                <td>{{.LastAck}}</td>
+                <td><input type="checkbox" disabled{{ if not .Disabled }} checked{{end}} /></td>
+            </tr>
+            {{end}}
+        </tbody>
+        <tfoot></tfoot>
+    </table>
+
+    <h4>Negative habits</h4>
+    <table>
+        <thead>
+            <tr>
+                <td>Name</td>
+                <td>Last time</td>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Negative}}
+            <tr class="{{.Class}}">
+                <td>{{.Name}}</td>
+                <td>{{.LastAck}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+        <tfoot></tfoot>
+    </table>
+{{end}}
