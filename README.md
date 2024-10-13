@@ -1,11 +1,6 @@
-# auth-boilerplate
+# well-binge
 
-This web-app features:
-* a working folder-based file structure,
-* a basic authentication service,
-* a basic SMTP implementation,
-* a Dockerfile for convenience,
-* a GitHub workflow to create packages.
+Create positive habits, get reminders, quit addictions.
 
 
 ## Environment
@@ -26,4 +21,4 @@ This application also looks for a `.env` file in the current directory.
 
 ## License
 
-auth-boilerplate is licensed under MIT.
+well-binge is licensed under MIT.

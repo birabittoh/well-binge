@@ -14,7 +14,7 @@ COPY src ./src
 COPY *.go ./
 
 # Build
-RUN CGO_ENABLED=0 go build -trimpath -o /dist/app
+RUN CGO_ENABLED=0 go build -trimpath -o /dist/well-binge
 
 
 # Test
@@ -30,4 +30,4 @@ COPY static ./static
 COPY templates ./templates
 COPY --from=builder /dist .
 
-ENTRYPOINT ["./app"]
+ENTRYPOINT ["./well-binge"]
