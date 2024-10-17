@@ -1,12 +1,12 @@
 {{ extends "base.tmpl" }}
 
-{{define "title" -}}Habits{{end}}
+{{define "title" -}}Habits - {{end}}
 
 {{define "content" -}}
 	<h1>Welcome, <i>{{.User.Username}}</i>!</h1> 
     <a href="/logout">Logout</a><br />
     <div class="habits-title">
-        <h4>Positive habits</h4>
+        <h3>Positive habits</h3>
         <a href="/new/positive" class="button">+ Add</a>
     </div>
     <table>
@@ -14,23 +14,33 @@
             <tr>
                 <td>Name</td>
                 <td>Last time</td>
-                <td>Enabled</td>
+                <td>Actions</td>
             </tr>
         </thead>
         <tbody>
-            {{range .Positive}}
-            <tr class="{{.Class}}">
-                <td>{{.Name}}</td>
-                <td>{{.LastAck}}</td>
-                <td><input type="checkbox" disabled{{ if not .Disabled }} checked{{end}} /></td>
-            </tr>
+            {{ range .Positive }}
+            <a href="/habits/{{ .ID }}">
+                <tr class="{{.Class}}">
+                    <td>{{ .Name }}</td>
+                    <td><i>{{ .LastAck }}</i></td>
+                    <td class="actions">
+                        <form action="/ack/{{ .ID }}" method="post">
+                            <input type="submit" value="Ack" />
+                        </form>
+
+                        <form action="/habits/{{ .ID }}" method="get">
+                            <input type="submit" value="Edit" />
+                        </form>
+                    </td>
+                </tr>
+            </a>
             {{end}}
         </tbody>
         <tfoot></tfoot>
     </table>
 
     <div class="habits-title">
-        <h4>Negative habits</h4>
+        <h3>Negative habits</h3>
         <a href="/new/negative" class="button">+ Add</a>
     </div>
     <table>
@@ -38,6 +48,7 @@
             <tr>
                 <td>Name</td>
                 <td>Last time</td>
+                <td>Actions</td>
             </tr>
         </thead>
         <tbody>
@@ -45,6 +56,15 @@
             <tr class="{{.Class}}">
                 <td>{{.Name}}</td>
                 <td>{{.LastAck}}</td>
+                <td class="actions">
+                    <form action="/ack/{{ .ID }}" method="post">
+                        <input type="submit" value="Ack" />
+                    </form>
+
+                    <form action="/habits/{{ .ID }}" method="get">
+                        <input type="submit" value="Edit" />
+                    </form>
+                </td>
             </tr>
             {{end}}
         </tbody>

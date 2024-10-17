@@ -118,9 +118,11 @@ func Main() {
 	// App
 	http.HandleFunc("GET /", getIndexHandler)
 	http.HandleFunc("GET /habits", loginRequired(getHabitsHandler))
+	http.HandleFunc("GET /habits/{id}", loginRequired(getHabitsIDHandler))
 	http.HandleFunc("GET /new/positive", loginRequired(getNewPositiveHandler))
 	http.HandleFunc("GET /new/negative", loginRequired(getNewNegativeHandler))
 	http.HandleFunc("POST /new", loginRequired(postNewHandler))
+	http.HandleFunc("POST /ack/{id}", loginRequired(postAckIDHandler))
 
 	// Auth
 	http.HandleFunc("GET /register", getRegisterHandler)

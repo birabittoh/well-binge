@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 )
 
 type HabitDisplay struct {
+	ID       uint
 	Class    string
 	Name     string
 	LastAck  string
@@ -141,13 +143,42 @@ func loginRequired(next http.HandlerFunc) http.HandlerFunc {
 
 func getLoggedUser(r *http.Request) (user User, ok bool) {
 	userID, ok := r.Context().Value(userContextKey).(uint)
-	db.Find(&user, userID)
+	if !ok {
+		return
+	}
+
+	if db.Find(&user, userID).Error != nil {
+		ok = true
+	}
+
 	return user, ok
 }
 
-func formatDuration(d time.Duration) string {
-	// TODO: 48h1m13s --> 2.01 days
-	return d.String()
+func formatDuration(t time.Time) string {
+	days := int(time.Since(t).Hours()) / 24
+
+	switch {
+	case days == 0:
+		return "Today"
+	case days == 1:
+		return "Yesterday"
+	case days <= 7:
+		return fmt.Sprintf("%d day(s) ago", days)
+	case days <= 30:
+		weeks := days / 7
+		remainingDays := days % 7
+		if remainingDays == 0 {
+			return fmt.Sprintf("%d week(s) ago", weeks)
+		}
+		return fmt.Sprintf("%d wee(k), %d day(s) ago", weeks, remainingDays)
+	default:
+		months := days / 30
+		remainingDays := days % 30
+		if remainingDays == 0 {
+			return fmt.Sprintf("%d month(s) ago", months)
+		}
+		return fmt.Sprintf("%d month(s), %d day(s) ago", months, remainingDays)
+	}
 }
 
 func toHabitDisplay(habit Habit) HabitDisplay {
@@ -155,14 +186,49 @@ func toHabitDisplay(habit Habit) HabitDisplay {
 	if habit.LastAck == nil {
 		lastAck = "-"
 	} else {
-		lastAck = formatDuration(time.Since(*habit.LastAck))
+		lastAck = formatDuration(*habit.LastAck)
 	}
+
 	return HabitDisplay{
+		ID:       habit.ID,
 		Name:     habit.Name,
 		LastAck:  lastAck,
 		Disabled: habit.Disabled,
 		Class:    classGood,
 	}
+}
+
+func getHabit(id uint) (habit Habit, err error) {
+	err = db.Model(&Habit{}).Find(&habit, id).Error
+	return
+}
+
+func getHabitHelper(w http.ResponseWriter, r *http.Request) (habit Habit, err error) {
+	id := getID(r)
+	if id == 0 {
+		err = errors.New("no id")
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+
+	user, ok := getLoggedUser(r)
+	if !ok {
+		err = errors.New("no logged user")
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	habit, err = getHabit(id)
+	if err != nil {
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	}
+
+	if habit.UserID != user.ID {
+		err = errors.New("forbidden")
+		http.Error(w, "forbidden", http.StatusForbidden)
+	}
+	return
 }
 
 func getAllHabits(userID uint) (positives []HabitDisplay, negatives []HabitDisplay, err error) {
@@ -181,4 +247,12 @@ func getAllHabits(userID uint) (positives []HabitDisplay, negatives []HabitDispl
 		}
 	}
 	return
+}
+
+func getID(r *http.Request) uint {
+	res, err := strconv.ParseUint(r.PathValue("id"), 10, 64)
+	if err != nil {
+		return 0
+	}
+	return uint(res)
 }

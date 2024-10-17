@@ -1,0 +1,28 @@
+{{ extends "base.tmpl" }}
+
+{{define "title" -}}Edit - {{end}}
+
+{{define "content" -}}
+	<h1>Edit habit</h1>
+
+    <form method="post" action="/edit">
+        <label>
+            <span>Name:</span>
+            <input type="text" name="name" autocomplete="off" placeholder="Name" value="{{ .Name }}" required />
+        </label>
+        {{ if not .Negative }}
+            <label>
+                <span>Days:</span>
+                <input type="number" name="days" autocomplete="off" placeholder="Days" min="1" max="60" value="{{ .Days }}" required />
+            </label>
+            <label>
+                <span>Enabled:</span>
+                <input type="checkbox" name="enabled"{{ if not .Disabled }} checked{{ end }} />
+            </label>
+        {{ end }}
+        <input type="submit" value="Edit" />
+    </form>
+    <form method="post" action="/edit">
+        <input type="submit" value="Delete" />
+    </form>
+{{end}}

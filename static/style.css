@@ -18,3 +18,14 @@ label > input {
     justify-content: space-between;
     align-items: center
 }
+
+.actions {
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-items: center;
+    justify-content: center;
+}
+
+.actions > form {
+    padding-inline: 5px;
+}

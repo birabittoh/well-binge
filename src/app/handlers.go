@@ -32,6 +32,15 @@ func getHabitsHandler(w http.ResponseWriter, r *http.Request) {
 	xt.ExecuteTemplate(w, "habits.tmpl", data)
 }
 
+func getHabitsIDHandler(w http.ResponseWriter, r *http.Request) {
+	habit, err := getHabitHelper(w, r)
+	if err != nil {
+		return
+	}
+
+	xt.ExecuteTemplate(w, "habits-id.tmpl", habit)
+}
+
 func getNewPositiveHandler(w http.ResponseWriter, r *http.Request) {
 	data := map[string]interface{}{"Negative": false}
 	xt.ExecuteTemplate(w, "new.tmpl", data)
@@ -71,6 +80,28 @@ func postNewHandler(w http.ResponseWriter, r *http.Request) {
 		Days:     days,
 		Negative: negative,
 	})
+
+	http.Redirect(w, r, "/habits", http.StatusFound)
+}
+
+func postAckIDHandler(w http.ResponseWriter, r *http.Request) {
+	habit, err := getHabitHelper(w, r)
+	if err != nil {
+		return
+	}
+
+	if habit.LastAck != nil {
+		if time.Since(*habit.LastAck) < 6*time.Hour {
+			http.Redirect(w, r, "/habits", http.StatusFound) // TODO: redirect to an error page instead
+			return
+		}
+	}
+
+	db.Create(Ack{HabitID: habit.ID})
+
+	now := time.Now()
+	habit.LastAck = &now
+	db.Save(&habit)
 
 	http.Redirect(w, r, "/habits", http.StatusFound)
 }
