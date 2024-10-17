@@ -5,7 +5,7 @@
 {{define "content" -}}
 	<h1>Edit habit</h1>
 
-    <form method="post" action="/edit">
+    <form method="post" action="/habits/{{ .ID }}">
         <label>
             <span>Name:</span>
             <input type="text" name="name" autocomplete="off" placeholder="Name" value="{{ .Name }}" required />
@@ -20,9 +20,9 @@
                 <input type="checkbox" name="enabled"{{ if not .Disabled }} checked{{ end }} />
             </label>
         {{ end }}
-        <input type="submit" value="Edit" />
+        <input type="submit" value="Save" />
     </form>
-    <form method="post" action="/edit">
+    <form method="post" action="/delete/{{ .ID }}">
         <input type="submit" value="Delete" />
     </form>
 {{end}}

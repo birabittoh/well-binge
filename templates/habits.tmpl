@@ -7,7 +7,7 @@
     <a href="/logout">Logout</a><br />
     <div class="habits-title">
         <h3>Positive habits</h3>
-        <a href="/new/positive" class="button">+ Add</a>
+        <a href="/new-positive" class="button">+ Add</a>
     </div>
     <table>
         <thead>
@@ -34,14 +34,14 @@
                     </td>
                 </tr>
             </a>
-            {{end}}
+            {{ end }}
         </tbody>
         <tfoot></tfoot>
     </table>
 
     <div class="habits-title">
         <h3>Negative habits</h3>
-        <a href="/new/negative" class="button">+ Add</a>
+        <a href="/new-negative" class="button">+ Add</a>
     </div>
     <table>
         <thead>
@@ -52,10 +52,10 @@
             </tr>
         </thead>
         <tbody>
-            {{range .Negative}}
+            {{ range .Negative }}
             <tr class="{{.Class}}">
-                <td>{{.Name}}</td>
-                <td>{{.LastAck}}</td>
+                <td>{{ .Name }}</td>
+                <td><i>{{ .LastAck }}</i></td>
                 <td class="actions">
                     <form action="/ack/{{ .ID }}" method="post">
                         <input type="submit" value="Ack" />
@@ -66,7 +66,7 @@
                     </form>
                 </td>
             </tr>
-            {{end}}
+            {{ end }}
         </tbody>
         <tfoot></tfoot>
     </table>

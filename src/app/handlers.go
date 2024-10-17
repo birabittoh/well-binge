@@ -57,6 +57,7 @@ func postNewHandler(w http.ResponseWriter, r *http.Request) {
 
 	if !checkHabitName(name) {
 		http.Error(w, "Bad habit name.", http.StatusBadRequest)
+		return
 	}
 
 	var days uint
@@ -72,6 +73,7 @@ func postNewHandler(w http.ResponseWriter, r *http.Request) {
 	user, ok := getLoggedUser(r)
 	if !ok {
 		http.Error(w, "Could not get logged user", http.StatusInternalServerError)
+		return
 	}
 
 	db.Create(&Habit{
@@ -80,6 +82,68 @@ func postNewHandler(w http.ResponseWriter, r *http.Request) {
 		Days:     days,
 		Negative: negative,
 	})
+
+	http.Redirect(w, r, "/habits", http.StatusFound)
+}
+
+func postHabitsIDHandler(w http.ResponseWriter, r *http.Request) {
+	habit, err := getHabitHelper(w, r)
+	if err != nil {
+		return
+	}
+
+	var changed bool
+
+	name := r.FormValue("name")
+	if name != habit.Name {
+		if !checkHabitName(name) {
+			http.Error(w, "Bad habit name.", http.StatusBadRequest)
+			return
+		}
+		habit.Name = name
+		changed = true
+	}
+
+	if !habit.Negative {
+		res, err := strconv.ParseUint(r.FormValue("days"), 10, 64)
+		if err != nil {
+			http.Error(w, "Bad days value.", http.StatusBadRequest)
+			return
+		}
+		days := uint(res)
+		if days != habit.Days {
+			habit.Days = days
+			changed = true
+		}
+	}
+
+	disabled := r.FormValue("enabled") != "on"
+	if disabled != habit.Disabled {
+		habit.Disabled = disabled
+		changed = true
+	}
+
+	if changed {
+		db.Save(&habit)
+	}
+
+	http.Redirect(w, r, "/habits", http.StatusFound)
+}
+
+func postDeleteIDHandler(w http.ResponseWriter, r *http.Request) {
+	id := getID(r)
+	if id == 0 {
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+
+	user, ok := getLoggedUser(r)
+	if !ok {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	db.Delete(&Habit{}, "id = ? AND user_id = ?", id, user.ID)
 
 	http.Redirect(w, r, "/habits", http.StatusFound)
 }
@@ -97,7 +161,7 @@ func postAckIDHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	db.Create(Ack{HabitID: habit.ID})
+	db.Create(&Ack{HabitID: habit.ID})
 
 	now := time.Now()
 	habit.LastAck = &now

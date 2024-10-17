@@ -29,3 +29,7 @@ label > input {
 .actions > form {
     padding-inline: 5px;
 }
+
+thead {
+    font-weight: bold;
+}
