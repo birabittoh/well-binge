@@ -4,6 +4,7 @@
 
 {{define "content" -}}
 	<h1>Edit habit</h1>
+    <a href="/habits">← Back</a>
 
     <form method="post" action="/habits/{{ .ID }}">
         <label>
@@ -20,9 +21,9 @@
                 <input type="checkbox" name="enabled"{{ if not .Disabled }} checked{{ end }} />
             </label>
         {{ end }}
-        <input type="submit" value="Save" />
+        <input type="submit" value="Save" class="spaced" />
     </form>
     <form method="post" action="/delete/{{ .ID }}">
-        <input type="submit" value="Delete" />
+        <input type="submit" value="Delete" class="spaced" />
     </form>
 {{end}}

@@ -19,6 +19,10 @@ label > input {
   align-items: center;
 }
 
+.habits-title > h3 {
+  margin-block: 10px;
+}
+
 .actions {
   display: grid;
   grid-template-columns: auto auto;
@@ -32,6 +36,10 @@ label > input {
 
 thead {
   font-weight: bold;
+}
+
+.spaced {
+  margin-top: 25px;
 }
 
 .good {

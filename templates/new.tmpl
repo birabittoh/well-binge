@@ -4,6 +4,7 @@
 
 {{define "content" -}}
 	<h1>New habit</h1>
+    <a href="/habits">← Back</a>
     <h4>
     {{ if .Negative }}
         Which negative habit are you trying to stop?
@@ -26,6 +27,6 @@
                 <input type="number" name="days" autocomplete="off" placeholder="Days" min="1" max="60" required />
             </label>
         {{ end }}
-        <input type="submit" value="Create" />
+        <input type="submit" value="Create" class="spaced" />
     </form>
 {{end}}

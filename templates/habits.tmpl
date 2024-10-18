@@ -4,7 +4,8 @@
 
 {{define "content" -}}
 	<h1>Welcome, <i>{{.User.Username}}</i>!</h1> 
-    <a href="/logout">Logout</a><br />
+    <a href="/logout">← Logout</a><br />
+    <div style="margin-top:20px;"></div>
     <div class="habits-title">
         <h3>Positive habits</h3>
         <a href="/new-positive" class="button">+ Add</a>
@@ -24,10 +25,11 @@
                     <td>{{ .Name }}</td>
                     <td><i>{{ .LastAck }}</i></td>
                     <td class="actions">
+                        {{ if not .Disabled }}
                         <form action="/ack/{{ .ID }}" method="post">
                             <input type="submit" value="Ack" />
                         </form>
-
+                        {{ end }}
                         <form action="/habits/{{ .ID }}" method="get">
                             <input type="submit" value="Edit" />
                         </form>

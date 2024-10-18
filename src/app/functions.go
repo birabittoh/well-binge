@@ -184,34 +184,24 @@ func formatDuration(t time.Time) (days int, s string) {
 	return
 }
 
-func toHabitDisplay(habit Habit) HabitDisplay {
-	var (
-		days    int
-		lastAck string
-		class   string
-	)
-
+func toHabitDisplay(habit Habit) (d HabitDisplay) {
 	if habit.LastAck != nil {
-		days, lastAck = formatDuration(*habit.LastAck)
-		class = getClassForAck(habit, days)
+		var days int
+		days, d.LastAck = formatDuration(*habit.LastAck)
+		d.Class = getClassForAck(habit, days)
 	} else {
-		lastAck = "-"
+		d.LastAck = "-"
 		if habit.Negative {
-			class = classGood
-		}
-
-		if !habit.Disabled {
-			class = classBad
+			d.Class = classGood
+		} else if !habit.Disabled {
+			d.Class = classBad
 		}
 	}
 
-	return HabitDisplay{
-		ID:       habit.ID,
-		Name:     habit.Name,
-		LastAck:  lastAck,
-		Disabled: habit.Disabled,
-		Class:    class,
-	}
+	d.ID = habit.ID
+	d.Name = habit.Name
+	d.Disabled = habit.Disabled
+	return
 }
 
 func getClassForAck(habit Habit, days int) string {
