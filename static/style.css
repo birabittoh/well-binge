@@ -1,35 +1,64 @@
 label {
-    display: grid;
-    grid-template-columns: auto auto;
-    align-items: center;
-    justify-items: start;
-    align-content: center;
-    justify-content: space-between;
-    max-width: 350px;
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  justify-items: start;
+  align-content: center;
+  justify-content: space-between;
+  max-width: 350px;
 }
 
 label > input {
-    max-width: 250px;
+  max-width: 250px;
 }
 
 .habits-title {
-    display: grid;
-    grid-template-columns: auto auto;
-    justify-content: space-between;
-    align-items: center
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .actions {
-    display: grid;
-    grid-template-columns: auto auto;
-    justify-items: center;
-    justify-content: center;
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-items: center;
+  justify-content: center;
 }
 
 .actions > form {
-    padding-inline: 5px;
+  padding-inline: 5px;
 }
 
 thead {
-    font-weight: bold;
+  font-weight: bold;
+}
+
+.good {
+  background-color: hsl(120, 50%, 10%) !important;
+}
+
+.bad {
+  background-color: hsl(0, 50%, 10%) !important;
+}
+
+.warn {
+  background-color: hsl(60, 50%, 10%) !important;
+}
+
+@media (prefers-color-scheme: light) {
+  .good {
+    background-color: hsl(120, 50%, 85%) !important;
+    color: black;
+  }
+
+  .bad {
+    background-color: hsl(0, 50%, 85%) !important;
+    color: black;
+  }
+
+  .warn {
+    background-color: hsl(60, 50%, 85%) !important;
+    color: black;
+  }
 }

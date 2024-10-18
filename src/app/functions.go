@@ -154,39 +154,55 @@ func getLoggedUser(r *http.Request) (user User, ok bool) {
 	return user, ok
 }
 
-func formatDuration(t time.Time) string {
-	days := int(time.Since(t).Hours()) / 24
+func formatDuration(t time.Time) (days int, s string) {
+	days = int(time.Since(t).Hours()) / 24
 
 	switch {
 	case days == 0:
-		return "Today"
+		s = "Today"
 	case days == 1:
-		return "Yesterday"
+		s = "Yesterday"
 	case days <= 7:
-		return fmt.Sprintf("%d day(s) ago", days)
+		s = fmt.Sprintf("%d day(s) ago", days)
 	case days <= 30:
 		weeks := days / 7
 		remainingDays := days % 7
 		if remainingDays == 0 {
-			return fmt.Sprintf("%d week(s) ago", weeks)
+			s = fmt.Sprintf("%d week(s) ago", weeks)
+		} else {
+			s = fmt.Sprintf("%d week(s), %d day(s) ago", weeks, remainingDays)
 		}
-		return fmt.Sprintf("%d wee(k), %d day(s) ago", weeks, remainingDays)
 	default:
 		months := days / 30
 		remainingDays := days % 30
 		if remainingDays == 0 {
-			return fmt.Sprintf("%d month(s) ago", months)
+			s = fmt.Sprintf("%d month(s) ago", months)
+		} else {
+			s = fmt.Sprintf("%d month(s), %d day(s) ago", months, remainingDays)
 		}
-		return fmt.Sprintf("%d month(s), %d day(s) ago", months, remainingDays)
 	}
+	return
 }
 
 func toHabitDisplay(habit Habit) HabitDisplay {
-	var lastAck string
-	if habit.LastAck == nil {
-		lastAck = "-"
+	var (
+		days    int
+		lastAck string
+		class   string
+	)
+
+	if habit.LastAck != nil {
+		days, lastAck = formatDuration(*habit.LastAck)
+		class = getClassForAck(habit, days)
 	} else {
-		lastAck = formatDuration(*habit.LastAck)
+		lastAck = "-"
+		if habit.Negative {
+			class = classGood
+		}
+
+		if !habit.Disabled {
+			class = classBad
+		}
 	}
 
 	return HabitDisplay{
@@ -194,7 +210,33 @@ func toHabitDisplay(habit Habit) HabitDisplay {
 		Name:     habit.Name,
 		LastAck:  lastAck,
 		Disabled: habit.Disabled,
-		Class:    classGood,
+		Class:    class,
+	}
+}
+
+func getClassForAck(habit Habit, days int) string {
+	if habit.Negative {
+		switch {
+		case days <= 1:
+			return classBad
+		case days <= 7:
+			return classWarn
+		default:
+			return classGood
+		}
+	}
+
+	if habit.Disabled {
+		return ""
+	}
+
+	switch {
+	case days <= 1:
+		return classGood
+	case days <= int(habit.Days):
+		return classWarn
+	default:
+		return classBad
 	}
 }
 
